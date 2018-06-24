@@ -9,7 +9,7 @@ This expermiental REST API uses:
  `$ docker-compose build`
 
 ## Run Container
- `$ docker run -d -p` __`32980:80`__ `--name mylittleurlapi`
+ `$ docker run -d -p 32980:80 --name mylittleurlapi`
 
 ## Browse
 Use the port number specified above
