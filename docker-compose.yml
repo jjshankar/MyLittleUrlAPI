@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  mylittleurlapi:
+    image: mylittleurlapi
+    build:
+      context: .
+      dockerfile: MyLittleUrlAPI/Dockerfile
