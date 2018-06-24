@@ -6,10 +6,10 @@ This expermiental REST API uses:
 * In-memory database 
 
 ## Build
-docker-compose build
+ `$ docker-compose build`
 
 ## Run Container
-docker run -d -p __32980:80__ --name mylittleurlapi
+ `$ docker run -d -p` __`32980:80`__ `--name mylittleurlapi`
 
 ## Browse
 Use the port number specified above
