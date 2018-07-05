@@ -1,9 +1,16 @@
 ﻿using System;
+using MongoDB.Bson;
+
 namespace MyLittleUrlAPI.Models
 {
     public class LittleUrl
     {
-        public int Id
+        public ObjectId _id
+        {
+            get;
+            set;
+        }
+        public int UrlId
         {
             get;
             set;

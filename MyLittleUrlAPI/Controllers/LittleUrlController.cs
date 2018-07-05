@@ -14,21 +14,30 @@ namespace MyLittleUrlAPI.Controllers
     [Route("api/littleurl")]
     public class LittleUrlController : Controller
     {
-        private LittleUrlContext _littleUrlContext;
+        // private LittleUrlContext _littleUrlContext;
 
-        public LittleUrlController(LittleUrlContext context)
+        private LittleUrlMongoContext _littleUrlMongoContext;
+        private int _nextUrlId;
+
+        //public LittleUrlController(LittleUrlContext context)
+        //{
+        //    _littleUrlContext = context;
+
+        //    if(_littleUrlContext.littleUrlList.Count() == 0)
+        //    {
+        //        // Seed values
+        //        _littleUrlContext.littleUrlList.Add(new LittleUrl { ShortUrl = "abc", LongUrl = "ABC_somelongurlcodedas_abc" });
+        //        _littleUrlContext.littleUrlList.Add(new LittleUrl { ShortUrl = "xyz", LongUrl = "ABC_somelongurlcodedas_xyz" });
+        //        _littleUrlContext.littleUrlList.Add(new LittleUrl { ShortUrl = "123", LongUrl = "ABC_somelongurlcodedas_123" });
+
+        //        _littleUrlContext.SaveChanges();
+        //    }
+        //}
+
+        public LittleUrlController()
         {
-            _littleUrlContext = context;
-
-            if(_littleUrlContext.littleUrlList.Count() == 0)
-            {
-                // Seed values
-                _littleUrlContext.littleUrlList.Add(new LittleUrl { ShortUrl = "abc", LongUrl = "ABC_somelongurlcodedas_abc" });
-                _littleUrlContext.littleUrlList.Add(new LittleUrl { ShortUrl = "xyz", LongUrl = "ABC_somelongurlcodedas_xyz" });
-                _littleUrlContext.littleUrlList.Add(new LittleUrl { ShortUrl = "123", LongUrl = "ABC_somelongurlcodedas_123" });
-
-                _littleUrlContext.SaveChanges();
-            }
+            _littleUrlMongoContext = new LittleUrlMongoContext();
+            _nextUrlId = -1;
         }
 
         // API Methods
@@ -36,7 +45,8 @@ namespace MyLittleUrlAPI.Controllers
         [HttpGet]
         public IEnumerable<LittleUrl> GetUrls()
         {
-            return _littleUrlContext.littleUrlList;
+            // return _littleUrlContext.littleUrlList;
+            return _littleUrlMongoContext.littleUrlList;
         }
 
         // Route: api/littleurl/<key>
@@ -46,7 +56,8 @@ namespace MyLittleUrlAPI.Controllers
             if (key.Length == 0)
                 return BadRequest("Key value required.");
 
-            LittleUrl item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.ShortUrl == key.ToLower());
+            // LittleUrl item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.ShortUrl == key.ToLower());
+            LittleUrl item = _littleUrlMongoContext.GetUrl(key.ToLower());
             if (item == null)
                 return NotFound("URL does not exist.");
 
@@ -62,14 +73,18 @@ namespace MyLittleUrlAPI.Controllers
 
             // Check if the URL already exists
             LittleUrl item;
-            item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.LongUrl == lUrl.LongUrl.ToLower());
+            // item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.LongUrl == lUrl.LongUrl.ToLower());
+
+            item = _littleUrlMongoContext.CheckUrl(lUrl.LongUrl.ToLower());
 
             if(item == null)
             {
                 // create
-                item = new LittleUrl { LongUrl = lUrl.LongUrl.ToLower(), ShortUrl = GetNewKey() };
-                _littleUrlContext.littleUrlList.Add(item);
-                _littleUrlContext.SaveChanges();
+                item = new LittleUrl { UrlId = GetNextId(), LongUrl = lUrl.LongUrl.ToLower(), ShortUrl = GetNewKey() };
+                //_littleUrlContext.littleUrlList.Add(item);
+                //_littleUrlContext.SaveChanges();
+
+                _littleUrlMongoContext.InsertUrl(item);
             }
 
             // return created/found item
@@ -95,11 +110,19 @@ namespace MyLittleUrlAPI.Controllers
                 } while (!rx.IsMatch(sNewKey));
 
                 // Find new key in list
-                item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.ShortUrl == sNewKey.ToLower());
+                // item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.ShortUrl == sNewKey.ToLower());
+                item = _littleUrlMongoContext.GetUrl(sNewKey.ToLower());
             } while (item != null);
 
             return sNewKey.ToLower();
         }
 
+        private int GetNextId()
+        {
+            if (_nextUrlId < 0)
+                _nextUrlId = _littleUrlMongoContext.littleUrlList.Count;
+
+            return ++_nextUrlId;
+        }
     }
 }

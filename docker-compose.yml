@@ -3,6 +3,16 @@ version: '3.4'
 services:
   mylittleurlapi:
     image: mylittleurlapi
+    depends_on: 
+      - mymongodb
     build:
       context: .
       dockerfile: MyLittleUrlAPI/Dockerfile
+
+  mymongodb:
+    image: mongo
+
+networks:
+  default:
+    external:
+      name: mylittleurl-net 
