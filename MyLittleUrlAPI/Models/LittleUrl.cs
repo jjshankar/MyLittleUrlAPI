@@ -4,7 +4,7 @@ using MongoDB.Bson;
 namespace MyLittleUrlAPI.Models
 {
     public class LittleUrl
-    {
+    {       
         public ObjectId _id
         {
             get;
@@ -27,5 +27,7 @@ namespace MyLittleUrlAPI.Models
             get;
             set;
         }
+
+        public DateTime CreationTime => _id.CreationTime;
     }
 }

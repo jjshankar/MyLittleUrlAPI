@@ -75,12 +75,12 @@ namespace MyLittleUrlAPI.Controllers
             LittleUrl item;
             // item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.LongUrl == lUrl.LongUrl.ToLower());
 
-            item = _littleUrlMongoContext.CheckUrl(lUrl.LongUrl.ToLower());
+            item = _littleUrlMongoContext.CheckUrl(lUrl.LongUrl);
 
             if(item == null)
             {
                 // create
-                item = new LittleUrl { UrlId = GetNextId(), LongUrl = lUrl.LongUrl.ToLower(), ShortUrl = GetNewKey() };
+                item = new LittleUrl { UrlId = GetNextId(), LongUrl = lUrl.LongUrl, ShortUrl = GetNewKey() };
                 //_littleUrlContext.littleUrlList.Add(item);
                 //_littleUrlContext.SaveChanges();
 
