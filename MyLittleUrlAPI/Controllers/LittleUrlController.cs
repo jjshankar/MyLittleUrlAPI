@@ -50,7 +50,7 @@ namespace MyLittleUrlAPI.Controllers
         }
 
         // Route: api/littleurl/<key>
-        [HttpGet("{key}", Name="GetByKey")]
+        [HttpGet("{key}", Name = "GetByKey")]
         public IActionResult GetByKey(string key)
         {
             if (key.Length == 0)
@@ -77,7 +77,7 @@ namespace MyLittleUrlAPI.Controllers
 
             item = _littleUrlMongoContext.CheckUrl(lUrl.LongUrl);
 
-            if(item == null)
+            if (item == null)
             {
                 // create
                 item = new LittleUrl { UrlId = GetNextId(), LongUrl = lUrl.LongUrl, ShortUrl = GetNewKey() };
@@ -89,6 +89,25 @@ namespace MyLittleUrlAPI.Controllers
 
             // return created/found item
             return CreatedAtRoute("GetByKey", new { key = item.ShortUrl }, item);
+        }
+
+        // Route: api/littleurl
+        [HttpDelete ("{key}")]
+        public IActionResult Delete(string key)
+        {
+            if (key.Length == 0)
+                return BadRequest("URL value is required.");
+
+            // Check if the URL exists
+            LittleUrl item = _littleUrlMongoContext.GetUrl(key.ToLower());
+            if (item == null)
+                return NotFound("URL does not exist.");
+
+            // Found document; Delete
+            _littleUrlMongoContext.DeleteUrl(key.ToLower());
+
+            // return deleted key
+            return Ok(key);
         }
 
         // Private helper

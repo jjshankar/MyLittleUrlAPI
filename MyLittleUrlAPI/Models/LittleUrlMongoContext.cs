@@ -48,6 +48,20 @@ namespace MyLittleUrlAPI.Models
             return;
         }
 
+        public void DeleteUrl(string shortUrl)
+        {
+            try
+            {
+                _myMongoDb.GetCollection<LittleUrl>(_mongoCollection)
+                          .DeleteOne<LittleUrl>(url => url.ShortUrl == shortUrl);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return;
+        }
+
         public LittleUrl GetUrl(string shortUrl)
         {
             try
@@ -87,7 +101,7 @@ namespace MyLittleUrlAPI.Models
         }
 
         public List<LittleUrl> littleUrlList => 
-                    _myMongoDb.GetCollection<LittleUrl>(_mongoCollection)
+        _myMongoDb.GetCollection<LittleUrl>(_mongoCollection)
                               .Find<LittleUrl>(FilterDefinition<LittleUrl>.Empty).ToList<LittleUrl>();
  
     }

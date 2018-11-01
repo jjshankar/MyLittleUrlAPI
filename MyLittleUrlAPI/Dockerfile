@@ -1,12 +1,12 @@
-FROM microsoft/aspnetcore:2.0 AS base
+FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM microsoft/aspnetcore-build:2.0 AS build
+FROM microsoft/dotnet:2.1-sdk AS build
 WORKDIR /src
 COPY MyLittleUrlAPI.sln ./
 COPY MyLittleUrlAPI/MyLittleUrlAPI.csproj MyLittleUrlAPI/
-RUN dotnet restore -nowarn:msb3202,nu1503
+RUN dotnet restore -nowarn:msb3202,nu1503 -p:RestoreUseSkipNonexistentTargets=false
 COPY . .
 WORKDIR /src/MyLittleUrlAPI
 RUN dotnet build -c Release -o /app
