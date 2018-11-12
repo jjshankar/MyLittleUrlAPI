@@ -29,5 +29,29 @@ namespace MyLittleUrlAPI.Models
         }
 
         public DateTime CreationTime => _id.CreationTime;
+
+        public bool IsDeleted
+        {
+            get;
+            set;
+        }
+
+        public DateTime LastAccessedTime
+        {
+            get;
+            set;
+        }
+
+        public DateTime DeletedTime
+        {
+            get;
+            set;
+        }
+
+        public DateTime PurgeDate
+        {
+            get;
+            set;
+        }
     }
 }

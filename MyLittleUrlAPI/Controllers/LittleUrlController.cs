@@ -57,7 +57,7 @@ namespace MyLittleUrlAPI.Controllers
                 return BadRequest("Key value required.");
 
             // LittleUrl item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.ShortUrl == key.ToLower());
-            LittleUrl item = _littleUrlMongoContext.GetUrl(key.ToLower());
+            LittleUrl item = _littleUrlMongoContext.GetUrl(key.ToLower(), false);
             if (item == null)
                 return NotFound("URL does not exist.");
 
@@ -99,15 +99,34 @@ namespace MyLittleUrlAPI.Controllers
                 return BadRequest("URL value is required.");
 
             // Check if the URL exists
-            LittleUrl item = _littleUrlMongoContext.GetUrl(key.ToLower());
+            LittleUrl item = _littleUrlMongoContext.GetUrl(key.ToLower(), false);
             if (item == null)
                 return NotFound("URL does not exist.");
 
             // Found document; Delete
-            _littleUrlMongoContext.DeleteUrl(key.ToLower());
+            item = _littleUrlMongoContext.ToggleDelete(key.ToLower(), true);
 
-            // return deleted key
-            return Ok(key);
+            // return deleted item
+            return Ok(item);
+        }
+
+        // Route: api/littleurl
+        [HttpPost("{key}")]
+        public IActionResult UnDelete(string key)
+        {
+            if (key.Length == 0)
+                return BadRequest("URL value is required.");
+
+            // Check if the deleted URL exists
+            LittleUrl item = _littleUrlMongoContext.GetUrl(key.ToLower(), true);
+            if (item == null)
+                return NotFound("URL does not exist.");
+
+            // Found document; UnDelete
+            item = _littleUrlMongoContext.ToggleDelete(key.ToLower(), false);
+
+            // return deleted item
+            return Ok(item);
         }
 
         // Private helper
@@ -128,9 +147,10 @@ namespace MyLittleUrlAPI.Controllers
                     sNewKey = Convert.ToBase64String(b).Substring(0, 3);
                 } while (!rx.IsMatch(sNewKey));
 
-                // Find new key in list
-                // item = _littleUrlContext.littleUrlList.FirstOrDefault(url => url.ShortUrl == sNewKey.ToLower());
-                item = _littleUrlMongoContext.GetUrl(sNewKey.ToLower());
+                // Find new key in list (irrespective of delete flag)
+                item = _littleUrlMongoContext.littleUrlList
+                            .FirstOrDefault(url => url.ShortUrl == sNewKey.ToLower());
+                // item = _littleUrlMongoContext.GetUrl(sNewKey.ToLower());
             } while (item != null);
 
             return sNewKey.ToLower();
@@ -139,8 +159,8 @@ namespace MyLittleUrlAPI.Controllers
         private int GetNextId()
         {
             if (_nextUrlId < 0)
-                _nextUrlId = _littleUrlMongoContext.littleUrlList.Count;
-
+                _nextUrlId = _littleUrlMongoContext.maxId;
+            
             return ++_nextUrlId;
         }
     }
