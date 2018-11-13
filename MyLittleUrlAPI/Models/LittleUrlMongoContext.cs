@@ -92,10 +92,17 @@ namespace MyLittleUrlAPI.Models
                                                                 DateTimeKind.Utc));
 
                     // Update if found
+                    var options = new FindOneAndUpdateOptions<LittleUrl>
+                    {
+                        IsUpsert = false,
+                        ReturnDocument = ReturnDocument.After
+                    };
+
                     returnUrl = _myMongoDb.GetCollection<LittleUrl>(_mongoCollection)
                                           .FindOneAndUpdate<LittleUrl>(
                                               url => url.ShortUrl == shortUrl,
-                                              urlUpdates);
+                                              urlUpdates,
+                                              options);
                 }
                 else 
                 {
@@ -109,10 +116,17 @@ namespace MyLittleUrlAPI.Models
                         .Set(url => url.PurgeDate, DateTime.MinValue);
                 
                     // Update if found
+                    var options = new FindOneAndUpdateOptions<LittleUrl>
+                    {
+                        IsUpsert = false,
+                        ReturnDocument = ReturnDocument.After
+                    };
+
                     returnUrl = _myMongoDb.GetCollection<LittleUrl>(_mongoCollection)
                                           .FindOneAndUpdate<LittleUrl>(
                                               url => url.ShortUrl == shortUrl,
-                                              urlUpdates);
+                                              urlUpdates,
+                                              options);
                 }
 
             }
