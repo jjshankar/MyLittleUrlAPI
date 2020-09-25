@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using MyLittleUrlAPI.Models;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -45,6 +48,10 @@ namespace MyLittleUrlAPI.Controllers
         [HttpGet]
         public IEnumerable<LittleUrl> GetUrls()
         {
+            HttpRequest req = Request;
+            if (IsUnauthorizedCaller(req))
+                throw new UnauthorizedAccessException();
+
             // return _littleUrlContext.littleUrlList;
             return _littleUrlMongoContext.littleUrlList;
         }
@@ -53,6 +60,10 @@ namespace MyLittleUrlAPI.Controllers
         [HttpGet("{key}", Name = "GetByKey")]
         public IActionResult GetByKey(string key)
         {
+            HttpRequest req = Request;
+            if (IsUnauthorizedCaller(req))
+                return Unauthorized();
+
             if (key.Length == 0)
                 return BadRequest("Key value required.");
 
@@ -68,6 +79,10 @@ namespace MyLittleUrlAPI.Controllers
         [HttpPost]
         public IActionResult AddToList([FromBody] LittleUrl lUrl)
         {
+            HttpRequest req = Request;
+            if (IsUnauthorizedCaller(req))
+                return Unauthorized();
+
             if (lUrl.LongUrl.Length == 0)
                 return BadRequest("URL value is required.");
 
@@ -95,6 +110,10 @@ namespace MyLittleUrlAPI.Controllers
         [HttpDelete ("{key}")]
         public IActionResult Delete(string key)
         {
+            HttpRequest req = Request;
+            if (IsUnauthorizedCaller(req))
+                return Unauthorized();
+
             if (key.Length == 0)
                 return BadRequest("URL value is required.");
 
@@ -114,6 +133,10 @@ namespace MyLittleUrlAPI.Controllers
         [HttpPost("{key}")]
         public IActionResult UnDelete(string key)
         {
+            HttpRequest req = Request;
+            if (IsUnauthorizedCaller(req))
+                return Unauthorized();
+
             if (key.Length == 0)
                 return BadRequest("URL value is required.");
 
@@ -162,6 +185,18 @@ namespace MyLittleUrlAPI.Controllers
                 _nextUrlId = _littleUrlMongoContext.maxId;
             
             return ++_nextUrlId;
+        }
+
+        private bool IsUnauthorizedCaller(HttpRequest req)
+        {
+            // Read from config file
+            var configBuilder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json");
+
+            // Read purge window from config; if not valid, use 90 as default
+            string clientSecret = configBuilder.Build().GetValue<string>("Security:ClientSecret");
+            return (req.Headers["Client-Secret"].FirstOrDefault() != clientSecret);
         }
     }
 }

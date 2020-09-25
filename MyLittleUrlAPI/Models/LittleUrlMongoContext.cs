@@ -287,7 +287,6 @@ namespace MyLittleUrlAPI.Models
         {
             try
             {
-                // Logical Delete
                 var urlUpdates = Builders<LittleUrl>.Update
                     //  Set LastAccessedTime = Now
                     .Set(url => url.LastAccessedTime, DateTime.UtcNow);
