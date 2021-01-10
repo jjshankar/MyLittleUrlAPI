@@ -25,10 +25,23 @@ namespace MyLittleUrlAPI.Models
         public List<LittleUrl> littleUrlList => _myMongoDb.GetCollection<LittleUrl>(_mongoCollection)
               .Find<LittleUrl>(FilterDefinition<LittleUrl>.Empty).ToList<LittleUrl>();
 
-        public int maxId => _myMongoDb.GetCollection<LittleUrl>(_mongoCollection)
+        public int GetMaxId()
+        {
+            int id = 0;
+            try
+            {
+                id = _myMongoDb.GetCollection<LittleUrl>(_mongoCollection)
                                         .Find<LittleUrl>(FilterDefinition<LittleUrl>.Empty)
                                         .SortByDescending(url => url.UrlId)
                                         .FirstOrDefault().UrlId;
+            }
+            catch (Exception ex)
+            {
+                // collection not found
+                Console.WriteLine(ex.Message);
+            }
+            return id;
+        }
 
         public LittleUrlMongoContext()
         {

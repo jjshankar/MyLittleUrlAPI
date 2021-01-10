@@ -182,7 +182,7 @@ namespace MyLittleUrlAPI.Controllers
         private int GetNextId()
         {
             if (_nextUrlId < 0)
-                _nextUrlId = _littleUrlMongoContext.maxId;
+                _nextUrlId = _littleUrlMongoContext.GetMaxId();
             
             return ++_nextUrlId;
         }
